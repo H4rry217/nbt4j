@@ -26,4 +26,9 @@ public class CompoundTag extends Tag{
     public byte[] toByteArray() {
         return new byte[0];
     }
+
+    @Override
+    public byte[] getPayLoad() {
+        return new byte[0];
+    }
 }

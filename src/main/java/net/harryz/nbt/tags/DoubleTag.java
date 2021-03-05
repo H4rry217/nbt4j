@@ -13,25 +13,22 @@ import java.nio.ByteOrder;
  **/
 
 @Data
-public class FloatTag extends Tag{
+public class DoubleTag extends Tag{
 
-    public final byte tagType = Tag.TAG_FLOAT;
+    public final byte tagType = Tag.TAG_DOUBLE;
 
-    private float data = 0F;
+    private double data = 0D;
 
-    public FloatTag(){
-        this("");
+    public DoubleTag(String name){
+        this(name, 0D);
     }
 
-    public FloatTag(String name){
-        this(name, 0F);
-    }
-
-    public FloatTag(String name, float data){
+    public DoubleTag(String name, double data){
         super(name);
         this.setData(data);
         this.setByteOrder(ByteOrder.BIG_ENDIAN);
     }
+
 
     @Override
     public byte getTagType() {
@@ -55,24 +52,28 @@ public class FloatTag extends Tag{
             e.printStackTrace();
         }
 
-        int floatBit = Float.floatToIntBits(this.data);
-        baos.write((floatBit >> 24) & 0xFF);
-        baos.write((floatBit >> 16) & 0xFF);
-        baos.write((floatBit >> 8) & 0xFF);
-        baos.write(floatBit & 0xFF);
+        try {
+            baos.write(getPayLoad());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return baos.toByteArray();
     }
 
     @Override
     public byte[] getPayLoad() {
-        int floatBit = Float.floatToIntBits(this.data);
-        byte[] payload = new byte[4];
+        long doubleBit = Double.doubleToLongBits(this.data);
+        byte[] payload = new byte[8];
 
-        payload[0] = (byte) ((floatBit >> 24) & 0xFF);
-        payload[1] = (byte) ((floatBit >> 16) & 0xFF);
-        payload[2] = (byte) ((floatBit >> 8) & 0xFF);
-        payload[3] = (byte) (floatBit & 0xFF);
+        payload[0] = (byte) ((doubleBit >> 56) & 0xFF);
+        payload[1] = (byte) ((doubleBit >> 48) & 0xFF);
+        payload[2] = (byte) ((doubleBit >> 40) & 0xFF);
+        payload[3] = (byte) ((doubleBit >> 32) & 0xFF);
+        payload[4] = (byte) ((doubleBit >> 24) & 0xFF);
+        payload[5] = (byte) ((doubleBit >> 16) & 0xFF);
+        payload[6] = (byte) ((doubleBit >> 8) & 0xFF);
+        payload[7] = (byte) (doubleBit & 0xFF);
 
         return payload;
     }

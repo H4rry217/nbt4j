@@ -45,16 +45,13 @@ public class ByteTag extends Tag{
     @Override
     public byte[] toByteArray() {
         int nameLength = this.getName().length();
-        int dataLength = 4;
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(
-                Tag.TAG_LENGTH_TAGTYPE + Tag.TAG_LENGTH_TAGNAME + nameLength + Tag.TAG_LENGTH_TAGDATA + dataLength
-        );
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         baos.write(this.tagType);
 
-        baos.write(nameLength >>> 8);
-        baos.write(nameLength ^ (nameLength >>> 8 << 8));
+        baos.write((nameLength >> 8) & 0xFF);
+        baos.write(nameLength & 0xFF);
 
         try {
             baos.write(this.getName().getBytes());
@@ -62,8 +59,18 @@ public class ByteTag extends Tag{
             e.printStackTrace();
         }
 
-        baos.write(this.data);
+        try {
+            baos.write(this.getPayLoad());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return baos.toByteArray();
     }
+
+    @Override
+    public byte[] getPayLoad() {
+        return new byte[]{this.tagType};
+    }
+
 }

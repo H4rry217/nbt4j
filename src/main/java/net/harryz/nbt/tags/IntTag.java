@@ -41,16 +41,13 @@ public class IntTag extends Tag{
     @Override
     public byte[] toByteArray() {
         int nameLength = this.getName().length();
-        int dataLength = 4;
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(
-                Tag.TAG_LENGTH_TAGTYPE + Tag.TAG_LENGTH_TAGNAME + nameLength + Tag.TAG_LENGTH_TAGDATA + dataLength
-        );
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         baos.write(this.tagType);
 
-        baos.write(nameLength >>> 8);
-        baos.write(nameLength ^ (nameLength >>> 8 << 8));
+        baos.write((nameLength >> 8) & 0xFF);
+        baos.write(nameLength & 0xFF);
 
         try {
             baos.write(this.getName().getBytes());
@@ -64,6 +61,18 @@ public class IntTag extends Tag{
         baos.write(this.data & 0xFF);
 
         return baos.toByteArray();
+    }
+
+    @Override
+    public byte[] getPayLoad() {
+        byte[] payload = new byte[4];
+
+        payload[0] = (byte) ((this.data >> 24) & 0xFF);
+        payload[1] = (byte) ((this.data >> 16) & 0xFF);
+        payload[2] = (byte) ((this.data >> 8) & 0xFF);
+        payload[3] = (byte) (this.data & 0xFF);
+
+        return payload;
     }
 
 }

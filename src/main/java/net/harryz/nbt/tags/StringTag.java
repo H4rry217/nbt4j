@@ -44,14 +44,12 @@ public class StringTag extends Tag{
         int nameLength = this.getName().length();
         int dataLength = this.data.length();
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(
-                Tag.TAG_LENGTH_TAGTYPE + Tag.TAG_LENGTH_TAGNAME + nameLength + Tag.TAG_LENGTH_TAGDATA + dataLength
-        );
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         baos.write(this.tagType);
 
-        baos.write(nameLength >>> 8);
-        baos.write(nameLength ^ (nameLength >>> 8 << 8));
+        baos.write((nameLength >> 8) & 0xFF);
+        baos.write(nameLength & 0xFF);
         //
 
         try {
@@ -71,4 +69,20 @@ public class StringTag extends Tag{
 
         return baos.toByteArray();
     }
+
+    @Override
+    public byte[] getPayLoad() {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        byteArrayOutputStream.write(this.data.length() >>> 8);
+        byteArrayOutputStream.write(this.data.length() ^ (this.data.length() >>> 8 << 8));
+
+        try {
+            byteArrayOutputStream.write(this.data.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return byteArrayOutputStream.toByteArray();
+    }
+
 }

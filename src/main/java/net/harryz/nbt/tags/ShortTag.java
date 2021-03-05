@@ -1,10 +1,7 @@
 package net.harryz.nbt.tags;
 
-import lombok.Data;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.ByteOrder;
 
 /**
  * @program: nbt4j
@@ -12,26 +9,11 @@ import java.nio.ByteOrder;
  * @author: H4rry217
  **/
 
-@Data
-public class LongTag extends Tag{
+public class ShortTag extends Tag{
 
-    public final byte tagType = Tag.TAG_LONG;
+    public final byte tagType = Tag.TAG_SHORT;
 
-    private long data = 0L;
-
-    public LongTag(){
-        this("");
-    }
-
-    public LongTag(String name){
-        this(name, 0L);
-    }
-
-    public LongTag(String name, long data){
-        super(name);
-        this.setData(data);
-        this.setByteOrder(ByteOrder.BIG_ENDIAN);
-    }
+    private int data = 1;
 
     @Override
     public byte getTagType() {
@@ -41,6 +23,7 @@ public class LongTag extends Tag{
     @Override
     public byte[] toByteArray() {
         int nameLength = this.getName().length();
+        int dataLength = 2;
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -56,28 +39,22 @@ public class LongTag extends Tag{
         }
 
         try {
-            baos.write(getPayLoad());
+            baos.write(this.getPayLoad());
         } catch (IOException e) {
             e.printStackTrace();
         }
+
 
         return baos.toByteArray();
     }
 
     @Override
     public byte[] getPayLoad() {
-        byte[] payload = new byte[8];
+        byte[] payload = new byte[2];
 
-        payload[0] = (byte) ((this.data >> 56) & 0xFF);
-        payload[0] = (byte) ((this.data >> 48) & 0xFF);
-        payload[0] = (byte) ((this.data >> 40) & 0xFF);
-        payload[0] = (byte) ((this.data >> 32) & 0xFF);
-        payload[0] = (byte) ((this.data >> 24) & 0xFF);
-        payload[0] = (byte) ((this.data >> 16) & 0xFF);
         payload[0] = (byte) ((this.data >> 8) & 0xFF);
-        payload[0] = (byte) (this.data & 0xFF);
+        payload[1] = (byte) (this.data & 0xFF);
 
         return payload;
     }
-
 }

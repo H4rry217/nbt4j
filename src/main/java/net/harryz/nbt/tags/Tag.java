@@ -1,5 +1,6 @@
 package net.harryz.nbt.tags;
 
+import java.io.IOException;
 import java.nio.ByteOrder;
 
 /**
@@ -23,10 +24,8 @@ public abstract class Tag {
     public static final int TAG_COMPOUND = 10;
     public static final int TAG_INT_ARRAY = 11;
     public static final int TAG_LONG_ARRAY = 12;
-
-    public static final int TAG_LENGTH_TAGTYPE = 1;
-    public static final int TAG_LENGTH_TAGNAME = 2;
-    public static final int TAG_LENGTH_TAGDATA = 2;
+    public static final int TAG_UNKNOWN = 20;
+    public static final int TAG_UNDEFINE = 21;
 
     private String name;
 
@@ -42,7 +41,9 @@ public abstract class Tag {
 
     public abstract byte getTagType();
 
-    public abstract byte[] toByteArray();
+    public abstract byte[] toByteArray() throws IOException;
+
+    public abstract byte[] getPayLoad() throws IOException;
 
     public String getName() {
         return name;
