@@ -1,7 +1,9 @@
 package net.harryz.nbt.tags;
 
 import lombok.Data;
+import net.harryz.nbt.exceptions.TagLoadErrorTypeException;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
@@ -14,8 +16,6 @@ import java.nio.ByteOrder;
 
 @Data
 public class LongTag extends Tag{
-
-    public final byte tagType = Tag.TAG_LONG;
 
     private long data = 0L;
 
@@ -31,6 +31,7 @@ public class LongTag extends Tag{
         super(name);
         this.setData(data);
         this.setByteOrder(ByteOrder.BIG_ENDIAN);
+        this.setTagType(Tag.TAG_LONG);
     }
 
     @Override
@@ -56,7 +57,7 @@ public class LongTag extends Tag{
         }
 
         try {
-            baos.write(getPayLoad());
+            baos.write(getPayload());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -65,7 +66,7 @@ public class LongTag extends Tag{
     }
 
     @Override
-    public byte[] getPayLoad() {
+    public byte[] getPayload() {
         byte[] payload = new byte[8];
 
         payload[0] = (byte) ((this.data >> 56) & 0xFF);
@@ -78,6 +79,59 @@ public class LongTag extends Tag{
         payload[0] = (byte) (this.data & 0xFF);
 
         return payload;
+    }
+
+    @Override
+    public LongTag load(byte[] bytes) throws TagLoadErrorTypeException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+
+        return load(bais);
+    }
+
+    @Override
+    public LongTag load(ByteArrayInputStream bais) throws TagLoadErrorTypeException {
+        this.loadInfo(bais);
+        this.loadPayload(bais);
+
+        try {
+            bais.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return this;
+    }
+
+    @Override
+    public LongTag loadPayload(byte[] bytes) {
+        long value = 0;
+        value += (long)bytes[0] << 56;
+        value += (long)bytes[1] << 48;
+        value += (long)bytes[2] << 40;
+        value += (long)bytes[3] << 32;
+        value += bytes[4] << 24;
+        value += bytes[5] << 16;
+        value += bytes[6] << 8;
+        value += bytes[7];
+
+        this.data = value;
+        return this;
+    }
+
+    @Override
+    public LongTag loadPayload(ByteArrayInputStream bais) {
+        long value = 0;
+        value += (long)bais.read() << 56;
+        value += (long)bais.read() << 48;
+        value += (long)bais.read() << 40;
+        value += (long)bais.read() << 32;
+        value += bais.read() << 24;
+        value += bais.read() << 16;
+        value += bais.read() << 8;
+        value += bais.read();
+
+        this.data = value;
+        return this;
     }
 
 }

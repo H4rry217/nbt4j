@@ -1,8 +1,9 @@
 package net.harryz.nbt.tags;
 
 import lombok.Data;
+import net.harryz.nbt.exceptions.TagLoadErrorTypeException;
 
-import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
@@ -15,8 +16,6 @@ import java.nio.ByteOrder;
 
 @Data
 public class StringTag extends Tag{
-
-    public final byte tagType = Tag.TAG_STRING;
 
     private String data = "";
 
@@ -32,6 +31,7 @@ public class StringTag extends Tag{
         super(name);
         this.setData(data);
         this.setByteOrder(ByteOrder.BIG_ENDIAN);
+        this.setTagType(Tag.TAG_STRING);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class StringTag extends Tag{
     }
 
     @Override
-    public byte[] getPayLoad() {
+    public byte[] getPayload() {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byteArrayOutputStream.write(this.data.length() >>> 8);
         byteArrayOutputStream.write(this.data.length() ^ (this.data.length() >>> 8 << 8));
@@ -83,6 +83,57 @@ public class StringTag extends Tag{
         }
 
         return byteArrayOutputStream.toByteArray();
+    }
+
+    @Override
+    public StringTag load(byte[] bytes) throws TagLoadErrorTypeException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+
+        return this.load(bais);
+    }
+
+    @Override
+    public StringTag load(ByteArrayInputStream bais) throws TagLoadErrorTypeException {
+        this.loadInfo(bais);
+        this.loadPayload(bais);
+
+        try {
+            bais.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return this;
+    }
+
+    @Override
+    public StringTag loadPayload(byte[] bytes) {
+        int length = 0;
+        length += bytes[0] << 8;
+        length += bytes[1];
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            sb.append((char)bytes[2 + i]);
+        }
+
+        this.setData(sb.toString());
+        return this;
+    }
+
+    @Override
+    public StringTag loadPayload(ByteArrayInputStream bais) {
+        int length = 0;
+        length += bais.read() << 8;
+        length += bais.read();
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            sb.append((char)bais.read());
+        }
+
+        this.setData(sb.toString());
+        return this;
     }
 
 }

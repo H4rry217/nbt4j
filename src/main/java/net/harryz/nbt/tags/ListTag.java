@@ -1,10 +1,15 @@
 package net.harryz.nbt.tags;
 
 import lombok.Data;
+import lombok.SneakyThrows;
+import net.harryz.nbt.NBTIO;
 import net.harryz.nbt.exceptions.ListTagTypeErrorException;
+import net.harryz.nbt.exceptions.TagLoadErrorTypeException;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,9 +33,12 @@ public class ListTag<T extends Tag> extends Tag{
 
     public ListTag(String name){
         super(name);
+        this.setByteOrder(ByteOrder.BIG_ENDIAN);
+        this.setTagType(Tag.TAG_LIST);
     }
 
-    public ListTag<T> add(Tag tag) throws ListTagTypeErrorException {
+    @SneakyThrows
+    public ListTag<T> add(Tag tag){
         if(this.listValuesType == Tag.TAG_UNDEFINE){
             this.list.add(tag);
             this.listValuesType = tag.getTagType();
@@ -70,7 +78,7 @@ public class ListTag<T extends Tag> extends Tag{
 
         //payload
         try {
-            baos.write(this.getPayLoad());
+            baos.write(this.getPayload());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -79,7 +87,7 @@ public class ListTag<T extends Tag> extends Tag{
     }
 
     @Override
-    public byte[] getPayLoad() throws IOException {
+    public byte[] getPayload(){
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         /*list tag type*/
         byteArrayOutputStream.write( this.listValuesType);
@@ -92,10 +100,53 @@ public class ListTag<T extends Tag> extends Tag{
 
         /*list tag value*/
         for(Tag tag: list){
-            byteArrayOutputStream.write(tag.getPayLoad());
+            try {
+                byteArrayOutputStream.write(tag.getPayload());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         return byteArrayOutputStream.toByteArray();
+    }
+
+    @Override
+    public ListTag<T> load(byte[] bytes) throws TagLoadErrorTypeException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+
+        return this.load(bais);
+    }
+
+    @Override
+    public ListTag<T> load(ByteArrayInputStream bais) throws TagLoadErrorTypeException {
+        this.loadInfo(bais);
+
+        this.listValuesType = (byte) bais.read();
+
+        int listLength = 0;
+        listLength += bais.read() << 24;
+        listLength += bais.read() << 16;
+        listLength += bais.read() << 8;
+        listLength += bais.read();
+
+        for (int i = 0; i < listLength; i++) {
+            Tag tag = NBTIO.createTag(this.listValuesType);
+            tag.loadPayload(bais);
+
+            this.add(tag);
+        }
+
+        return this;
+    }
+
+    @Override
+    public ListTag<T> loadPayload(byte[] bytes) {
+        return null;
+    }
+
+    @Override
+    public Tag loadPayload(ByteArrayInputStream bais) {
+        return null;
     }
 
 }

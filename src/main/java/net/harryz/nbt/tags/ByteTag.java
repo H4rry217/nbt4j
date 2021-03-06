@@ -1,7 +1,9 @@
 package net.harryz.nbt.tags;
 
 import lombok.Data;
+import net.harryz.nbt.exceptions.TagLoadErrorTypeException;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
@@ -14,8 +16,6 @@ import java.nio.ByteOrder;
 
 @Data
 public class ByteTag extends Tag{
-
-    public final byte tagType = Tag.TAG_BYTE;
 
     private int data = 0;
 
@@ -31,15 +31,11 @@ public class ByteTag extends Tag{
         super(name);
         this.setData(data);
         this.setByteOrder(ByteOrder.BIG_ENDIAN);
+        this.setTagType(Tag.TAG_BYTE);
     }
 
     public void setData(int data){
         this.data = data > 0? 1: 0;
-    }
-
-    @Override
-    public byte getTagType(){
-        return this.tagType;
     }
 
     @Override
@@ -60,7 +56,7 @@ public class ByteTag extends Tag{
         }
 
         try {
-            baos.write(this.getPayLoad());
+            baos.write(this.getPayload());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -69,8 +65,41 @@ public class ByteTag extends Tag{
     }
 
     @Override
-    public byte[] getPayLoad() {
+    public byte[] getPayload() {
         return new byte[]{this.tagType};
+    }
+
+    @Override
+    public ByteTag load(byte[] bytes) throws TagLoadErrorTypeException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+
+        return this.load(bais);
+    }
+
+    @Override
+    public ByteTag load(ByteArrayInputStream bais) throws TagLoadErrorTypeException {
+        this.loadInfo(bais);
+        this.loadPayload(bais);
+
+        try {
+            bais.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return this;
+    }
+
+    @Override
+    public ByteTag loadPayload(byte[] bytes){
+        this.data = bytes[0];
+        return this;
+    }
+
+    @Override
+    public ByteTag loadPayload(ByteArrayInputStream bais) {
+        this.data = bais.read();
+        return this;
     }
 
 }
