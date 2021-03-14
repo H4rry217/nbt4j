@@ -122,4 +122,14 @@ public class FloatTag extends Tag{
         this.data = Float.intBitsToFloat(floatBit);
         return this;
     }
+
+    @Override
+    public String toString(){
+        return (new StringBuilder("FloatTag"))
+                .append('(')
+                .append("name=").append(this.getName()).append(", ")
+                .append("data=").append(this.data)
+                .append(')').toString();
+    }
+
 }

@@ -149,4 +149,18 @@ public class ListTag<T extends Tag> extends Tag{
         return null;
     }
 
+    @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder("ListTag");
+        sb.append('(')
+                .append("name=").append(this.getName()).append(", ")
+                .append("size=").append(this.list.size()).append("\n");
+
+        for (Tag tag : list) {
+            sb.append("   ").append(tag.toString()).append("\n");
+        }
+
+        return sb.append(')').toString();
+    }
+
 }

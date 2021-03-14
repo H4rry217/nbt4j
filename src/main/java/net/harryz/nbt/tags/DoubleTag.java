@@ -135,4 +135,14 @@ public class DoubleTag extends Tag{
         this.data = Double.longBitsToDouble(longBit);
         return this;
     }
+
+    @Override
+    public String toString(){
+        return (new StringBuilder("DoubleTag"))
+                .append('(')
+                .append("name=").append(this.getName()).append(", ")
+                .append("data=").append(this.data)
+                .append(')').toString();
+    }
+
 }

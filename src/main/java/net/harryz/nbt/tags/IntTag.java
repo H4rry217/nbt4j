@@ -122,4 +122,13 @@ public class IntTag extends Tag{
         return this;
     }
 
+    @Override
+    public String toString(){
+        return (new StringBuilder("IntTag"))
+                .append('(')
+                .append("name=").append(this.getName()).append(", ")
+                .append("data=").append(this.data)
+                .append(')').toString();
+    }
+
 }

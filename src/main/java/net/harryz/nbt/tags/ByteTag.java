@@ -102,4 +102,13 @@ public class ByteTag extends Tag{
         return this;
     }
 
+    @Override
+    public String toString(){
+        return (new StringBuilder("ByteTag"))
+                .append('(')
+                .append("name=").append(this.getName()).append(", ")
+                .append("data=").append(this.data)
+                .append(')').toString();
+    }
+
 }

@@ -125,13 +125,22 @@ public class LongTag extends Tag{
         value += (long)bais.read() << 48;
         value += (long)bais.read() << 40;
         value += (long)bais.read() << 32;
-        value += bais.read() << 24;
-        value += bais.read() << 16;
-        value += bais.read() << 8;
+        value += (long) bais.read() << 24;
+        value += (long) bais.read() << 16;
+        value += (long) bais.read() << 8;
         value += bais.read();
 
         this.data = value;
         return this;
+    }
+
+    @Override
+    public String toString(){
+        return (new StringBuilder("LongTag"))
+                .append('(')
+                .append("name=").append(this.getName()).append(", ")
+                .append("data=").append(this.data)
+                .append(')').toString();
     }
 
 }

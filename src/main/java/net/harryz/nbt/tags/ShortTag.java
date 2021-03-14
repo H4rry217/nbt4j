@@ -114,4 +114,14 @@ public class ShortTag extends Tag{
         this.data = value;
         return this;
     }
+
+    @Override
+    public String toString(){
+        return (new StringBuilder("ShortTag"))
+                .append('(')
+                .append("name=").append(this.getName()).append(", ")
+                .append("data=").append(this.data)
+                .append(')').toString();
+    }
+
 }

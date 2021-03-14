@@ -138,4 +138,18 @@ public class CompoundTag extends Tag{
 
         return this;
     }
+
+    @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder("CompoundTag");
+        sb.append('(')
+                .append("name=").append(this.getName()).append(", ")
+                .append("size=").append(this.tags.size()).append("\n");
+
+        for (Tag tag : tags) {
+            sb.append("   ").append(tag.toString()).append("\n");
+        }
+
+        return sb.append(')').toString();
+    }
 }
