@@ -7,8 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @program: nbt4j
@@ -18,7 +17,7 @@ import java.util.List;
 
 public class CompoundTag extends Tag{
 
-    private final List<Tag> tags = new ArrayList<>();
+    private final Map<String, Tag> tags = new HashMap<>();
 
     public CompoundTag(){
         this("");
@@ -31,8 +30,12 @@ public class CompoundTag extends Tag{
     }
 
     public CompoundTag put(Tag tag){
-        this.tags.add(tag);
+        this.tags.put(tag.getName(), tag);
         return this;
+    }
+
+    public boolean exists(String key){
+        return this.tags.containsKey(key);
     }
 
     @Override
@@ -54,7 +57,7 @@ public class CompoundTag extends Tag{
             e.printStackTrace();
         }
 
-        for (Tag tag: tags){
+        for (Tag tag: this.tags.values()){
             try {
                 baos.write(tag.toByteArray());
             } catch (IOException e) {
@@ -70,7 +73,7 @@ public class CompoundTag extends Tag{
     @Override
     public byte[] getPayload() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        for (Tag tag: tags){
+        for (Tag tag: this.tags.values()){
             try {
                 baos.write(tag.toByteArray());
             } catch (IOException e) {
@@ -130,7 +133,17 @@ public class CompoundTag extends Tag{
 
             if(tag != null) {
                 tag.load(bais);
-                this.tags.add(tag);
+                this.tags.put(tag.getName(), tag);
+            }
+
+            if(tag == null){
+                System.out.println(val);
+                int val1 = -1;
+                for (int i = 0; i < 50; i++) {
+                    val1 = (bais.read());
+                    System.out.println(val1 + "   "+(char)val1);
+                }
+                while(true){}
             }
 
             bais.mark(0);
@@ -141,15 +154,10 @@ public class CompoundTag extends Tag{
 
     @Override
     public String toString(){
-        StringBuilder sb = new StringBuilder("CompoundTag");
-        sb.append('(')
-                .append("name=").append(this.getName()).append(", ")
-                .append("size=").append(this.tags.size()).append("\n");
-
-        for (Tag tag : tags) {
-            sb.append("   ").append(tag.toString()).append("\n");
-        }
-
-        return sb.append(')').toString();
+        StringJoiner joiner = new StringJoiner(",\n\t");
+        this.tags.forEach((key, tag) -> {
+            joiner.add('\'' + key + "' : " + tag.toString().replace("\n", "\n\t"));
+        });
+        return "CompoundTag '" + this.getName() + "' (" + this.tags.size() + " entries) {\n\t" + joiner.toString() + "\n}";
     }
 }

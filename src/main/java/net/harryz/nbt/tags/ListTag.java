@@ -93,13 +93,13 @@ public class ListTag<T extends Tag> extends Tag{
         byteArrayOutputStream.write( this.listValuesType);
 
         /*list size*/
-        byteArrayOutputStream.write( list.size() >> 24 & 0xff);
-        byteArrayOutputStream.write( list.size() >> 16 & 0xff);
-        byteArrayOutputStream.write( list.size() >> 8 & 0xff);
-        byteArrayOutputStream.write( list.size() & 0xff);
+        byteArrayOutputStream.write( this.list.size() >> 24 & 0xff);
+        byteArrayOutputStream.write( this.list.size() >> 16 & 0xff);
+        byteArrayOutputStream.write( this.list.size() >> 8 & 0xff);
+        byteArrayOutputStream.write( this.list.size() & 0xff);
 
         /*list tag value*/
-        for(Tag tag: list){
+        for(Tag tag: this.list){
             try {
                 byteArrayOutputStream.write(tag.getPayload());
             } catch (IOException e) {
@@ -156,7 +156,7 @@ public class ListTag<T extends Tag> extends Tag{
                 .append("name=").append(this.getName()).append(", ")
                 .append("size=").append(this.list.size()).append("\n");
 
-        for (Tag tag : list) {
+        for (Tag tag : this.list) {
             sb.append("   ").append(tag.toString()).append("\n");
         }
 

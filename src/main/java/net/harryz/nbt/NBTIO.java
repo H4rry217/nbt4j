@@ -1,6 +1,10 @@
 package net.harryz.nbt;
 
+import lombok.SneakyThrows;
 import net.harryz.nbt.tags.*;
+
+import java.io.*;
+import java.util.zip.GZIPInputStream;
 
 /**
  * @program: nbt4j
@@ -40,9 +44,10 @@ public class NBTIO {
             }
             case Tag.TAG_DOUBLE:{
                 tag = new DoubleTag();
+                break;
             }
             case Tag.TAG_BYTE_ARRAY:{
-                //TODO
+                tag = new ByteArrayTag();
                 break;
             }
             case Tag.TAG_STRING:{
@@ -67,6 +72,19 @@ public class NBTIO {
         }
 
         return tag;
+    }
+
+    @SneakyThrows
+    public static Tag readCompressGZIP(File file){
+        BufferedInputStream bis = new BufferedInputStream(new GZIPInputStream(new FileInputStream(file)));
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        int len = -1;
+        while((len = bis.read()) != -1){
+            baos.write(len);
+        }
+
+        return new CompoundTag().load(baos.toByteArray());
     }
 
 }
