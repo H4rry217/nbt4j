@@ -34,6 +34,10 @@ public class CompoundTag extends Tag{
         return this;
     }
 
+    public Tag get(String key){
+        return this.tags.get(key);
+    }
+
     public boolean exists(String key){
         return this.tags.containsKey(key);
     }

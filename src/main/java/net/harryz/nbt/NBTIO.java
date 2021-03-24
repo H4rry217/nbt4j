@@ -5,6 +5,7 @@ import net.harryz.nbt.tags.*;
 
 import java.io.*;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipException;
 
 /**
  * @program: nbt4j
@@ -75,8 +76,15 @@ public class NBTIO {
     }
 
     @SneakyThrows
-    public static Tag readCompressGZIP(File file){
-        BufferedInputStream bis = new BufferedInputStream(new GZIPInputStream(new FileInputStream(file)));
+    public static Tag readCompressGZIP(File file) throws ZipException{
+        InputStream gzipStream;
+        try {
+            gzipStream = new GZIPInputStream(new FileInputStream(file));
+        }catch (ZipException e){
+            throw e;
+        }
+
+        BufferedInputStream bis = new BufferedInputStream(gzipStream);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         int len = -1;
